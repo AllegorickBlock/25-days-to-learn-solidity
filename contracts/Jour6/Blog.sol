@@ -1,25 +1,37 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
 contract Blog {
 
-    // @dev : Une structure contenant les infos de l'article avec comme noms (id, titre, texte, auteur et timestamp);
-
-    // @dev : Un mapping contenant les articles par id avec comme nom (articles)
-
-    // @dev : Une variable (id) qui peut être récupérée
-
-    // @dev : Une variable (auteur) qui peut être récupérée
-
-    // @dev : Un événement (NouvelArticle) avec toutes les informations de l'article
-
-    // @dev : Le créateur du contrat doit devenir auteur à la création
-    constructor() {
-
+    struct Article{
+        uint id;
+        string titre;
+        string texte;
+        address auteur;
+        uint timestamp;
     }
 
-    // @dev : Une fonction (modifierAuteur) qui permet de modifier l'auteur du blog, seulement par l'auteur actuel
+    mapping(uint => Article) public articles;
 
-    // @dev : Une fonction (creerArticle) qui permet d'ajouter un article, seulement par l'auteur actuel
-    // elle doit émettre un événement NouvelArticle avec toutes les informations de l'article
+    address public auteur;
+
+    uint public id = 0;
+
+    event NouvelArticle(uint id, string titre, string texte, address auteur, uint timestamp);
+
+    constructor() {
+        auteur = msg.sender;
+    }
+
+    function creerArticle(string memory _titre, string memory _texte) public {
+        id++;
+        require(msg.sender == auteur, "Vous n'etes pas l'auteur");
+        articles[id] = Article(id, _titre, _texte, msg.sender, block.timestamp);
+        emit NouvelArticle(id, _titre, _texte, msg.sender, block.timestamp);
+    }
+
+    function modifierAuteur(address _newAuteur) public{
+        require(auteur == msg.sender,"Vous n'etes pas l'auteur");
+        auteur = _newAuteur;
+    }
 }
