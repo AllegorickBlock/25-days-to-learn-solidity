@@ -1,5 +1,5 @@
-//const { ethers } = require("hardhat");
-
+const { ethers } = require("hardhat");
+export {};
 async function main() {
     // COMMANDE À LANCER : yarn hardhat run .\scripts\HelloWorld.deploy.ts --network polygonMumbai
 
