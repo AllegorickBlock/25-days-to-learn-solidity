@@ -6,11 +6,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin\contracts\utils\Strings.sol";
+
 
 contract NftContract is ERC721, Ownable {
 
-    using Counters for Counters.Conter;
+    using Counters for Counters.Counter;
     using Strings for uint;
 
     Counters.Counter private _tokenIds;
