@@ -67,6 +67,22 @@ contract NftContract is ERC721, Ownable {
         mintPrice = _newPrice;
     }
 
+    function setMerkleRoot(byte30 _merkleRoot) public onlyOwner{
+        merkleRoot = _merkleRoot;
+    }
+
+    function _leaf(address _account) internal pure returns (bytes32){
+        return keccak256(abi.encodePacked(_account));
+    }
+
+    function _verify(byte32 leaf, bytes32[] memory proof) internal views returns(bool){
+        return MerkleProof.verify(proof,merkleRoot,leaf);
+    }
+
+    function isWhiteListed(address _account, bytes32[] calldata proof) public view returns(bool){
+        return _verify(_leaf(_account),proof);
+    }
+
     //emit newMint(msg.sender, msg.value);
 
     //emit stepUpdated(_step);
