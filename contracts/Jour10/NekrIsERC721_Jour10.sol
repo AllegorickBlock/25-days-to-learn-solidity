@@ -46,6 +46,10 @@ contract NftContract is ERC721, Ownable {
         merkleRoot = _merkleRoot;
     }
 
+    function updateNFT(string memory _baseTokenURI)external onlyOwner{
+        baseTokenURI = _baseTokenURI;
+    }
+
     function mint(uint _count, bytes32[] calldata _proof) external payable{
         require(currentStep == Step.WhiteList || currentStep == Step.PublicSale,"Le mint n'est pas en cour");
         uint currentMintPrice = getCurrentMintPrice();
