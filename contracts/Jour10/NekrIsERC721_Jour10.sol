@@ -24,7 +24,7 @@ contract NftContract is ERC721, Ownable {
 
     Step public currentStep;
 
-    bytes public merkleRoot;
+    bytes32 public merkleRoot;
 
     uint public constant maxSupply = 10;
     uint public constant maxWhiteList = 5;
@@ -41,25 +41,25 @@ contract NftContract is ERC721, Ownable {
 
 
 
-    constructor(string memory _baseTokenURI, byte32 _merkleRoot) ERC721 ('AllegoTest', 'ALTT') {
+    constructor(string memory _baseTokenURI, bytes32 _merkleRoot) ERC721 ('AllegoTest', 'ALTT') {
         baseTokenURI = _baseTokenURI;
         merkleRoot = _merkleRoot;
     }
 
     function mint(uint _count, bytes32[] calldata _proof) external payable{
         require(currentStep == Step.WhiteList || currentStep == Step.PublicSale,"Le mint n'est pas en cour");
-        uint mintPrice = getCurrentMintPrice();
+        uint currentMintPrice = getCurrentMintPrice();
         uint totalMinted = _tokenIds.current();
 
-        require(totalMinted + _count <= maxSupply, "Max supply dépassée");
+        require(totalMinted + _count <= maxSupply, "Max supply depassee");
 
         if(currentStep == Step.WhiteList){
             require(isWhiteListed(msg.sender,_proof),"Pas whitelist");
-            require(amountMintByAddress[msg.sender] + _count > 1,"Limite de mint en whitelist dépassé");
+            require(amountMintByAddress[msg.sender] + _count > 1,"Limite de mint en whitelist depasse");
 
         }
 
-        require(msg.walue >= mintPrice * _count, "Pas assez de fond");
+        require(msg.value >= currentMintPrice * _count, "Pas assez de fond");
 
         for(uint i = 0; i < _count; i++){
             uint newTokenId = _tokenIds.current();
@@ -72,7 +72,7 @@ contract NftContract is ERC721, Ownable {
 
     function withdrawContract() public onlyOwner{
         require(address(this).balance > 0,"La balance du contract est vide");
-        payable(message.sender).transfer(address(this).balance);
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     function getCurrentStep() public view returns (Step){
@@ -92,7 +92,7 @@ contract NftContract is ERC721, Ownable {
         mintPrice = _newPrice;
     }
 
-    function setMerkleRoot(byte30 _merkleRoot) public onlyOwner{
+    function setMerkleRoot(bytes32 _merkleRoot) public onlyOwner{
         merkleRoot = _merkleRoot;
     }
 
@@ -100,7 +100,7 @@ contract NftContract is ERC721, Ownable {
         return keccak256(abi.encodePacked(_account));
     }
 
-    function _verify(byte32 leaf, bytes32[] memory proof) internal views returns(bool){
+    function _verify(bytes32 leaf, bytes32[] memory proof) internal view returns(bool){
         return MerkleProof.verify(proof,merkleRoot,leaf);
     }
 
@@ -108,8 +108,8 @@ contract NftContract is ERC721, Ownable {
         return _verify(_leaf(_account),proof);
     }
 
-
-    //emit stepUpdated(_step);
-
-
+    function setStep(Step _step) external onlyOwner{
+        currentStep = _step;
+        emit stepUpdated(_step);
+    }
 }
