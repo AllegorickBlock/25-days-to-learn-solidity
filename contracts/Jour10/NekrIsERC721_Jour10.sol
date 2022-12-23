@@ -40,9 +40,34 @@ contract NftContract is ERC721, Ownable {
     event stepUpdated(Step currentStep);
 
 
+
     constructor(string memory _baseTokenURI, byte32 _merkleRoot) ERC721 ('AllegoTest', 'ALTT') {
         baseTokenURI = _baseTokenURI;
         merkleRoot = _merkleRoot;
+    }
+
+    function mint(uint _count, bytes32[] calldata _proof) external payable{
+        require(currentStep == Step.WhiteList || currentStep == Step.PublicSale,"Le mint n'est pas en cour");
+        uint mintPrice = getCurrentMintPrice();
+        uint totalMinted = _tokenIds.current();
+
+        require(totalMinted + _count <= maxSupply, "Max supply dépassée");
+
+        if(currentStep == Step.WhiteList){
+            require(isWhiteListed(msg.sender,_proof),"Pas whitelist");
+            require(amountMintByAddress[msg.sender] + _count > 1,"Limite de mint en whitelist dépassé");
+
+        }
+
+        require(msg.walue >= mintPrice * _count, "Pas assez de fond");
+
+        for(uint i = 0; i < _count; i++){
+            uint newTokenId = _tokenIds.current();
+            _mint(msg.sender, newTokenId);
+            _tokenIds.increment();
+        }
+
+        emit newMint(msg.sender, _count);
     }
 
     function withdrawContract() public onlyOwner{
@@ -83,7 +108,6 @@ contract NftContract is ERC721, Ownable {
         return _verify(_leaf(_account),proof);
     }
 
-    //emit newMint(msg.sender, msg.value);
 
     //emit stepUpdated(_step);
 
