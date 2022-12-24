@@ -65,4 +65,8 @@ contract NekrIsERC721_Jour12 is ERC721, Ownable {
         }
     }
 
+    function totalSupply() external view returns (uint){
+        return _tokenIds.current();
+    }
+
 }
