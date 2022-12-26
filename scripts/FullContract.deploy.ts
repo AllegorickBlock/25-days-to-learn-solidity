@@ -24,7 +24,7 @@ async function FullContract(){
         console.log("Token veirifed");
     } catch(error){
         console.log("Already verified");
-    }
+    } 
 
     const NFT = await nft.deploy(uri,merkleRoot);
     await nft.deployed();
