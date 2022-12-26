@@ -20,12 +20,11 @@ function GenerateMerkle() {
     const root = tree.getHexRoot();
     console.log("Whitelist root :", root);
 
-    const addressToCheck = "0xBcD09dfEc85285eE39D7CbF195fc973CdE2213c2";
+    const addressToCheck = "0x76945B4FEA08f6d14F69d18d4A263E30f3b4721A";
     // Vérification de l'existence d'une adresse dans l'arbre de merkle
     const proof = tree.getHexProof(keccak256(addressToCheck));
     console.log('Merkle proof for', addressToCheck, ':', proof);
 }
 
 GenerateMerkle();
-
 
