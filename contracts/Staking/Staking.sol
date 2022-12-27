@@ -23,7 +23,7 @@ contract Staking {
 
     event staked(address indexed owner, uint256 nftId, uint timeStamp);
     event unstaked(address indexed owner, uint256 nftId, uint timeStamp);
-    event claim(address indexed owner, uint reward);
+    event claimed(address indexed owner, uint reward);
 
     constructor(AllegoToken _token , NftContract _nft){
         token = _token;
@@ -31,14 +31,16 @@ contract Staking {
     }
 
     function staking(uint[] calldata tokenIds) external {
+        uint totalStaked;
+
         for(uint i = 0; i< tokenIds.length; i++){
-            require(msg.sender == nft.ownerOf(tokenIds[i]),"Vous n'etes pas le propriétaire de ce nft");
+            require(msg.sender == nft.ownerOf(tokenIds[i]),"Vous n'etes pas le proprietaire de ce nft");
             require(structById[tokenIds[i]].startTimestamp == 0,"Already staked");
             nft.transferFrom(msg.sender, address (this),tokenIds[i]);
             emit staked(msg.sender,tokenIds[i],block.timestamp);
 
             structById[tokenIds[i]] = StakingStruct({
-                nftID: tokenIds[i],
+                nftId: tokenIds[i],
                 startTimestamp: block.timestamp,
                 owner: msg.sender
             });
@@ -47,9 +49,9 @@ contract Staking {
     }
 
     function getRewardsPending(address _owner,uint[] calldata tokenIds) external view returns(uint){
-
-        for(uint i = 0;i< tokenIds.lenght;i++){
-            require(structById[tokenIds[i]].owner == _owner,"Pas le même propriétaire");
+        uint totalReward;
+        for(uint i = 0;i< tokenIds.length;i++){
+            require(structById[tokenIds[i]].owner == _owner,"Pas le meme proprietaire");
 
             uint startTime = structById[tokenIds[i]].startTimestamp;
 
@@ -65,8 +67,9 @@ contract Staking {
 
     //Bool : @param  1 unstake , 0 keep staked
     function _claim(address _owner, uint[] calldata tokenIds,bool _unstake) internal {
-        for(uint i = 0;i< tokenIds.lenght;i++){
-            require(structById[tokenIds[i]].owner == _owner,"Pas le même propriétaire");
+        uint totalReward;
+        for(uint i = 0;i< tokenIds.length;i++){
+            require(structById[tokenIds[i]].owner == _owner,"Pas le meme proprietaire");
 
             uint startTime = structById[tokenIds[i]].startTimestamp;
 
@@ -86,7 +89,7 @@ contract Staking {
             _unstakeNFT(_owner,tokenIds);
         }
 
-        emit claim(_owner,totalReward);
+        emit claimed(_owner,totalReward);
 
     }
 
@@ -94,8 +97,9 @@ contract Staking {
         _claim(msg.sender,tokenIds,true);
     }
 
-    function _unstakeNFT(address _owner, uint[] tokenIds) internal {
-        for(uint i = 0;i< tokenIds.lenght;i++){
+    function _unstakeNFT(address _owner, uint[] calldata tokenIds) internal {
+        uint totalStaked;
+        for(uint i = 0;i< tokenIds.length;i++){
             require(_owner == structById[tokenIds[i]].owner,"Pas le proprio des nft");
             delete structById[tokenIds[i]];
 
@@ -103,16 +107,16 @@ contract Staking {
 
             emit unstaked(_owner,tokenIds[i],block.timestamp);
         }
-        totalStaked -= tokenIds.lenght;
+        totalStaked -= tokenIds.length;
     }
 
-    function tokenByOwner(address _owner) external view returns(uint[]){
+    function tokenByOwner(address _owner) external view returns(uint[] memory){
         uint maxSupply = nft.maxSupply();
         uint[] memory tempList = new uint[](maxSupply);
         uint stakedCount = 0;
 
         for(uint i = 0;i< maxSupply;i++){
-            if(structById[tokenIds[i]].owner == _owner){
+            if(structById[i].owner == _owner){
                 tempList[i]=i;
                 stakedCount++;
             }

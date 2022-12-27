@@ -1,4 +1,3 @@
-pragma solidity ^0.8.0;
 import {run} from "hardhat";
 import {GetMerkleRoot} from "./GetMerkleRoot";
 
@@ -10,14 +9,14 @@ async function FullContract(){
     const staking = await ethers.getContractFactory("Staking");
 
     const merkleRoot = GetMerkleRoot();
-    const uri = "ipfs://test";
+    const uri = "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/";
 
-    const Token = await token.deploy();
-    await token.deployed();
+    const Token = await token.deploy({gasPrice: 60000000000});
+    await Token.deployed();
     await delay(5000);
 
     try{
-        await run('verify:verify',{
+        await run(`verify:verify`, {
             address: Token.address,
             constructorArguments: [],
         })
@@ -26,8 +25,8 @@ async function FullContract(){
         console.log("Already verified");
     }
 
-    const NFT = await nft.deploy(uri,merkleRoot);
-    await nft.deployed();
+    const NFT = await nft.deploy(uri,merkleRoot,{gasPrice:60000000000});
+    await NFT.deployed();
     await delay(5000);
  
     try{
@@ -40,8 +39,8 @@ async function FullContract(){
         console.log("Already verified");
     }
 
-    const Staking = await staking.deploy(Token.address,NFT.address);
-    await nft.deployed();
+    const Staking = await staking.deploy(Token.address,NFT.address,{gasPrice: 600000000000});
+    await Staking.deployed();
     try{
         await run('verify:verify',{
             address: Staking.address,
@@ -52,6 +51,12 @@ async function FullContract(){
         console.log("Already verified");
     }
     await Token.addAdmin(Staking.address);
+
+
+    console.log("Resume : ")
+    console.log("Token address :", Token.address);
+    console.log("NFT address :", NFT.address);
+    console.log("Staking address :", Staking.address);
 
 }
 
