@@ -50,6 +50,10 @@ contract NftContract is ERC721, Ownable {
         baseTokenURI = _baseTokenURI;
     }
 
+    function setTokenUri(string memory _tokenUri) external{
+        baseTokenURI = _tokenUri;
+    }
+
     function mint(uint _count, bytes32[] calldata _proof) external payable{
         require(currentStep == Step.WhiteList || currentStep == Step.PublicSale,"Le mint n'est pas en cour");
         uint currentMintPrice = getCurrentMintPrice();
@@ -59,7 +63,7 @@ contract NftContract is ERC721, Ownable {
 
         if(currentStep == Step.WhiteList){
             require(isWhiteListed(msg.sender,_proof),"Pas whitelist");
-            require(amountMintByAddress[msg.sender] + _count > 1,"Limite de mint en whitelist depasse");
+            require(amountMintByAddress[msg.sender] + _count == 1,"Limite de mint en whitelist depasse");
 
         }
 
@@ -69,6 +73,7 @@ contract NftContract is ERC721, Ownable {
             uint newTokenId = _tokenIds.current();
             _mint(msg.sender, newTokenId);
             _tokenIds.increment();
+            amountMintByAddress[msg.sender]++;
         }
 
         emit newMint(msg.sender, _count);
@@ -115,5 +120,10 @@ contract NftContract is ERC721, Ownable {
     function setStep(Step _step) external onlyOwner{
         currentStep = _step;
         emit stepUpdated(_step);
+    }
+
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        require(_exists(_tokenId),"ERC721Metadata: URI query for nonexistent token");
+        return string(abi.encodePacked(baseTokenURI, _tokenId.toString()));
     }
 }

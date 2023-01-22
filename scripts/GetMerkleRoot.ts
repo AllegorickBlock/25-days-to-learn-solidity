@@ -9,6 +9,7 @@ export function GetMerkleRoot() {
     })
     const leaves = wlTab.map(a => keccak256(a));
     const tree = new MerkleTree(leaves, keccak256, { sort: true });
+    console.log('Merkle proof for' ,tree.getHexRoot());
     return tree.getHexRoot();
 }
 

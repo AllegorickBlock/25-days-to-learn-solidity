@@ -9,9 +9,9 @@ async function FullContract(){
     const staking = await ethers.getContractFactory("Staking");
 
     const merkleRoot = GetMerkleRoot();
-    const uri = "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/";
+    const uri = "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq";
 
-    const Token = await token.deploy({gasPrice: 60000000000});
+    const Token = await token.deploy({gasPrice: 600000000000});
     await Token.deployed();
     await delay(5000);
 
@@ -25,7 +25,7 @@ async function FullContract(){
         console.log("Already verified");
     }
 
-    const NFT = await nft.deploy(uri,merkleRoot,{gasPrice:60000000000});
+    const NFT = await nft.deploy(uri,merkleRoot,{gasPrice:0});
     await NFT.deployed();
     await delay(5000);
  
@@ -39,7 +39,7 @@ async function FullContract(){
         console.log("Already verified");
     }
 
-    const Staking = await staking.deploy(Token.address,NFT.address,{gasPrice: 600000000000});
+    const Staking = await staking.deploy(Token.address,NFT.address,{gasPrice: 6000000000000});
     await Staking.deployed();
     try{
         await run('verify:verify',{
